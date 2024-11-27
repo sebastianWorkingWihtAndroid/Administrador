@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Administrador</title>
+
+    <!-- Custom fonts for this template -->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <div id="menu-container"></div> <!-- Aquí se cargará dinámicamente el menú -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <form class="form-inline">
+                        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                    </form>
+
+                    <!-- Topbar Search -->
+                    <form
+                        class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group">
+                            <input type="text" id="navbarSearch" class="form-control bg-light border-0 small"
+                                placeholder="Buscar..." aria-label="Search" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-2 text-gray-800">SUBVENSIONES</h1>
+                    <p class="mb-4">Boletín de oferta internacional</p>
+
+                    <!-- DataTales Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Datos</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="sheetTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>NOMBRE</th>
+                                            <th>DESCRIPCION</th>
+                                            <th>FECHA</th>
+                                            <th>LINK</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Sebastian Corcho 2024</span>
+                        <a href="https://www.linkedin.com/in/sebascorcho/" target="_blank" class="ml-2">
+                            <i class="fab fa-linkedin fa-lg" style="color: #0077b5;"></i>
+                        </a>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- jQuery -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript -->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- DataTables Scripts -->
+    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+    <!-- Custom scripts for all pages -->
+    <script src="js/sb-admin-2.min.js"></script>
+
+    <!-- Tu script personalizado -->
+    <script>
+        // Función para obtener datos de Google Sheets
+        async function fetchSheetData() {
+            const SHEET_URL = 'https://sheets.googleapis.com/v4/spreadsheets/1NU_bWcebVL9WXpnWDpB-i14JMqgQsc47dN5uZH6MGvA/values/SUBVENSIONES!A1:Z1000?key=AIzaSyCNNOxjmnQTJamETvi5-VowavcfS_xPRnM';
+
+            try {
+                const response = await fetch(SHEET_URL);
+                const data = await response.json();
+                if (data.values) {
+                    renderTable(data.values);
+                } else {
+                    console.error('No se encontraron datos.');
+                }
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+            }
+        }
+
+        // Función para renderizar la tabla
+        function renderTable(data) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            data.slice(1).forEach(row => { // Omite la fila de encabezado
+                const tr = document.createElement('tr');
+                row.forEach((cell, index) => {
+                    const td = document.createElement('td');
+                    if (index === row.length - 1) { // Suponiendo que la última columna es 'LINK'
+                        const button = document.createElement('button');
+                        button.textContent = 'Abrir enlace';
+                        button.className = 'btn btn-primary btn-sm';
+                        button.onclick = () => window.open(cell, '_blank');
+                        td.appendChild(button);
+                    } else {
+                        td.textContent = cell;
+                    }
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+
+            // Destruir cualquier instancia previa de DataTable
+            if ($.fn.DataTable.isDataTable('#sheetTable')) {
+                $('#sheetTable').DataTable().destroy();
+            }
+
+            // Inicializar DataTable
+            var table = $('#sheetTable').DataTable({
+                language: {
+                    lengthMenu: 'Mostrar _MENU_ registros por página',
+                    zeroRecords: 'No se encontraron resultados',
+                    info: 'Mostrando página _PAGE_ de _PAGES_',
+                    infoEmpty: 'No hay registros disponibles',
+                    infoFiltered: '(filtrado de _MAX_ registros totales)',
+                    search: 'Buscar:',
+                    paginate: {
+                        first: 'Primero',
+                        last: 'Último',
+                        next: 'Siguiente',
+                        previous: 'Anterior'
+                    }
+                },
+
+                columnDefs: [
+                    {
+                        targets: -1, // Última columna (LINK)
+                        searchable: false, // Desactivar búsqueda en esta columna
+                        orderable: false // Opcional: Desactivar ordenamiento en esta columna
+                    }
+                ]
+                // Desactiva el campo de búsqueda predeterminado de DataTables si prefieres usar la barra de búsqueda de la navbar
+                // searching: false
+            });
+
+            // Vincular la barra de búsqueda del navbar con DataTables
+            $('#navbarSearch').on('keyup', function () {
+                table.search(this.value).draw();
+            });
+        }
+
+        // Llamada inicial para obtener los datos
+        fetchSheetData();
+
+        // Función para cargar el menú
+        async function loadMenu() {
+            try {
+                const response = await fetch('menu.html');
+                if (!response.ok) throw new Error('No se pudo cargar el menú');
+                const menu = await response.text();
+                document.getElementById('menu-container').innerHTML = menu;
+            } catch (error) {
+                console.error('Error al cargar el menú:', error);
+            }
+        }
+
+        loadMenu();
+    </script>
+
+</body>
+
+</html>
